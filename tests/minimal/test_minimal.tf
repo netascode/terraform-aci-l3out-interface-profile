@@ -11,36 +11,42 @@ terraform {
   }
 }
 
+resource "aci_rest" "fvTenant" {
+  dn         = "uni/tn-TF"
+  class_name = "fvTenant"
+}
+
+resource "aci_rest" "l3extOut" {
+  dn         = "${aci_rest.fvTenant.id}/out-L3OUT1"
+  class_name = "l3extOut"
+}
+
+resource "aci_rest" "l3extLNodeP" {
+  dn         = "${aci_rest.l3extOut.id}/lnodep-NP1"
+  class_name = "l3extLNodeP"
+}
+
 module "main" {
   source = "../.."
 
-  name = "ABC"
+  tenant       = aci_rest.fvTenant.content.name
+  l3out        = aci_rest.l3extOut.content.name
+  node_profile = aci_rest.l3extLNodeP.content.name
+  name         = "IP1"
 }
 
-data "aci_rest" "fvTenant" {
-  dn = "uni/tn-ABC"
+data "aci_rest" "l3extLIfP" {
+  dn = module.main.dn
 
   depends_on = [module.main]
 }
 
-resource "test_assertions" "fvTenant" {
-  component = "fvTenant"
+resource "test_assertions" "l3extLIfP" {
+  component = "l3extLIfP"
 
   equal "name" {
     description = "name"
-    got         = data.aci_rest.fvTenant.content.name
-    want        = "ABC"
-  }
-
-  equal "nameAlias" {
-    description = "nameAlias"
-    got         = data.aci_rest.fvTenant.content.nameAlias
-    want        = ""
-  }
-
-  equal "descr" {
-    description = "descr"
-    got         = data.aci_rest.fvTenant.content.descr
-    want        = ""
+    got         = data.aci_rest.l3extLIfP.content.name
+    want        = module.main.name
   }
 }
