@@ -33,7 +33,7 @@ locals {
           description = peer.description != null ? peer.description : ""
           bfd         = peer.bfd == true ? "bfd" : ""
           ttl         = peer.ttl != null ? peer.ttl : 1
-          weight      = peer.weight != null ? peer.weight : ""
+          weight      = peer.weight != null ? peer.weight : 0
           password    = peer.password != null ? peer.password : null
           remote_as   = peer.remote_as
         }
