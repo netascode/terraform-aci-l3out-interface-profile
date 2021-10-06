@@ -157,7 +157,7 @@ resource "aci_rest" "bgpPeerP" {
   class_name = "bgpPeerP"
   content = {
     addr             = each.value.ip
-    addrTCtrl        = "af-ucast"
+    addrTCtrl        = "af-mcast,af-ucast"
     allowedSelfAsCnt = "3"
     ctrl             = "send-com,send-ext-com"
     descr            = each.value.description

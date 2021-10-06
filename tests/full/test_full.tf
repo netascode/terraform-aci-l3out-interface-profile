@@ -333,7 +333,7 @@ resource "test_assertions" "bgpPeerP" {
   equal "addrTCtrl" {
     description = "addrTCtrl"
     got         = data.aci_rest.bgpPeerP.content.addrTCtrl
-    want        = "af-ucast"
+    want        = "af-mcast,af-ucast"
   }
 
   equal "allowedSelfAsCnt" {
