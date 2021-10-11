@@ -1,6 +1,10 @@
+## 0.0.4
+
+- Update implicit resource dependencies
+
 ## 0.0.3
 
-- Enable nicastv4 and multicastv4 address families for BGP peers
+- Enable unicastv4 and multicastv4 address families for BGP peers
 
 ## 0.0.2
 
