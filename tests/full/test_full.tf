@@ -5,33 +5,33 @@ terraform {
     }
 
     aci = {
-      source  = "netascode/aci"
-      version = ">=0.2.0"
+      source  = "CiscoDevNet/aci"
+      version = ">=2.0.0"
     }
   }
 }
 
-resource "aci_rest" "fvTenant" {
+resource "aci_rest_managed" "fvTenant" {
   dn         = "uni/tn-TF"
   class_name = "fvTenant"
 }
 
-resource "aci_rest" "l3extOut" {
-  dn         = "${aci_rest.fvTenant.id}/out-L3OUT1"
+resource "aci_rest_managed" "l3extOut" {
+  dn         = "${aci_rest_managed.fvTenant.id}/out-L3OUT1"
   class_name = "l3extOut"
 }
 
-resource "aci_rest" "l3extLNodeP" {
-  dn         = "${aci_rest.l3extOut.id}/lnodep-NP1"
+resource "aci_rest_managed" "l3extLNodeP" {
+  dn         = "${aci_rest_managed.l3extOut.id}/lnodep-NP1"
   class_name = "l3extLNodeP"
 }
 
 module "main" {
   source = "../.."
 
-  tenant                      = aci_rest.fvTenant.content.name
-  l3out                       = aci_rest.l3extOut.content.name
-  node_profile                = aci_rest.l3extLNodeP.content.name
+  tenant                      = aci_rest_managed.fvTenant.content.name
+  l3out                       = aci_rest_managed.l3extOut.content.name
+  node_profile                = aci_rest_managed.l3extLNodeP.content.name
   name                        = "IP1"
   bfd_policy                  = "BFD1"
   ospf_interface_profile_name = "OSPFP1"
@@ -65,7 +65,7 @@ module "main" {
   }]
 }
 
-data "aci_rest" "l3extLIfP" {
+data "aci_rest_managed" "l3extLIfP" {
   dn = module.main.dn
 
   depends_on = [module.main]
@@ -76,13 +76,13 @@ resource "test_assertions" "l3extLIfP" {
 
   equal "name" {
     description = "name"
-    got         = data.aci_rest.l3extLIfP.content.name
+    got         = data.aci_rest_managed.l3extLIfP.content.name
     want        = module.main.name
   }
 }
 
-data "aci_rest" "ospfIfP" {
-  dn = "${data.aci_rest.l3extLIfP.id}/ospfIfP"
+data "aci_rest_managed" "ospfIfP" {
+  dn = "${data.aci_rest_managed.l3extLIfP.id}/ospfIfP"
 
   depends_on = [module.main]
 }
@@ -92,25 +92,25 @@ resource "test_assertions" "ospfIfP" {
 
   equal "name" {
     description = "name"
-    got         = data.aci_rest.ospfIfP.content.name
+    got         = data.aci_rest_managed.ospfIfP.content.name
     want        = "OSPFP1"
   }
 
   equal "authKeyId" {
     description = "authKeyId"
-    got         = data.aci_rest.ospfIfP.content.authKeyId
+    got         = data.aci_rest_managed.ospfIfP.content.authKeyId
     want        = "2"
   }
 
   equal "authType" {
     description = "authType"
-    got         = data.aci_rest.ospfIfP.content.authType
+    got         = data.aci_rest_managed.ospfIfP.content.authType
     want        = "md5"
   }
 }
 
-data "aci_rest" "ospfRsIfPol" {
-  dn = "${data.aci_rest.ospfIfP.id}/rsIfPol"
+data "aci_rest_managed" "ospfRsIfPol" {
+  dn = "${data.aci_rest_managed.ospfIfP.id}/rsIfPol"
 
   depends_on = [module.main]
 }
@@ -120,13 +120,13 @@ resource "test_assertions" "ospfRsIfPol" {
 
   equal "tnOspfIfPolName" {
     description = "tnOspfIfPolName"
-    got         = data.aci_rest.ospfRsIfPol.content.tnOspfIfPolName
+    got         = data.aci_rest_managed.ospfRsIfPol.content.tnOspfIfPolName
     want        = "OSPF1"
   }
 }
 
-data "aci_rest" "bfdIfP" {
-  dn = "${data.aci_rest.l3extLIfP.id}/bfdIfP"
+data "aci_rest_managed" "bfdIfP" {
+  dn = "${data.aci_rest_managed.l3extLIfP.id}/bfdIfP"
 
   depends_on = [module.main]
 }
@@ -136,13 +136,13 @@ resource "test_assertions" "bfdIfP" {
 
   equal "type" {
     description = "type"
-    got         = data.aci_rest.bfdIfP.content.type
+    got         = data.aci_rest_managed.bfdIfP.content.type
     want        = "none"
   }
 }
 
-data "aci_rest" "bfdRsIfPol" {
-  dn = "${data.aci_rest.bfdIfP.id}/rsIfPol"
+data "aci_rest_managed" "bfdRsIfPol" {
+  dn = "${data.aci_rest_managed.bfdIfP.id}/rsIfPol"
 
   depends_on = [module.main]
 }
@@ -152,13 +152,13 @@ resource "test_assertions" "bfdRsIfPol" {
 
   equal "tnBfdIfPolName" {
     description = "tnBfdIfPolName"
-    got         = data.aci_rest.bfdRsIfPol.content.tnBfdIfPolName
+    got         = data.aci_rest_managed.bfdRsIfPol.content.tnBfdIfPolName
     want        = "BFD1"
   }
 }
 
-data "aci_rest" "l3extRsPathL3OutAtt" {
-  dn = "${data.aci_rest.l3extLIfP.id}/rspathL3OutAtt-[topology/pod-2/protpaths-201-202/pathep-[VPC1]]"
+data "aci_rest_managed" "l3extRsPathL3OutAtt" {
+  dn = "${data.aci_rest_managed.l3extLIfP.id}/rspathL3OutAtt-[topology/pod-2/protpaths-201-202/pathep-[VPC1]]"
 
   depends_on = [module.main]
 }
@@ -168,79 +168,79 @@ resource "test_assertions" "l3extRsPathL3OutAtt" {
 
   equal "addr" {
     description = "addr"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.addr
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.addr
     want        = "0.0.0.0"
   }
 
   equal "autostate" {
     description = "autostate"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.autostate
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.autostate
     want        = "disabled"
   }
 
   equal "descr" {
     description = "descr"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.descr
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.descr
     want        = "Interface 1"
   }
 
   equal "encapScope" {
     description = "encapScope"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.encapScope
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.encapScope
     want        = "local"
   }
 
   equal "ifInstT" {
     description = "ifInstT"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.ifInstT
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.ifInstT
     want        = "ext-svi"
   }
 
   equal "encap" {
     description = "encap"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.encap
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.encap
     want        = "vlan-5"
   }
 
   equal "ipv6Dad" {
     description = "ipv6Dad"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.ipv6Dad
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.ipv6Dad
     want        = "enabled"
   }
 
   equal "llAddr" {
     description = "llAddr"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.llAddr
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.llAddr
     want        = "::"
   }
 
   equal "mac" {
     description = "mac"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.mac
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.mac
     want        = "12:34:56:78:90:AB"
   }
 
   equal "mode" {
     description = "mode"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.mode
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.mode
     want        = "regular"
   }
 
   equal "mtu" {
     description = "mtu"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.mtu
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.mtu
     want        = "1500"
   }
 
   equal "tDn" {
     description = "tDn"
-    got         = data.aci_rest.l3extRsPathL3OutAtt.content.tDn
+    got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.tDn
     want        = "topology/pod-2/protpaths-201-202/pathep-[VPC1]"
   }
 }
 
-data "aci_rest" "l3extMember_A" {
-  dn = "${data.aci_rest.l3extRsPathL3OutAtt.id}/mem-A"
+data "aci_rest_managed" "l3extMember_A" {
+  dn = "${data.aci_rest_managed.l3extRsPathL3OutAtt.id}/mem-A"
 
   depends_on = [module.main]
 }
@@ -250,19 +250,19 @@ resource "test_assertions" "l3extMember_A" {
 
   equal "addr" {
     description = "addr"
-    got         = data.aci_rest.l3extMember_A.content.addr
+    got         = data.aci_rest_managed.l3extMember_A.content.addr
     want        = "1.1.1.2/24"
   }
 
   equal "side" {
     description = "side"
-    got         = data.aci_rest.l3extMember_A.content.side
+    got         = data.aci_rest_managed.l3extMember_A.content.side
     want        = "A"
   }
 }
 
-data "aci_rest" "l3extIp_A" {
-  dn = "${data.aci_rest.l3extMember_A.id}/addr-[1.1.1.1/24]"
+data "aci_rest_managed" "l3extIp_A" {
+  dn = "${data.aci_rest_managed.l3extMember_A.id}/addr-[1.1.1.1/24]"
 
   depends_on = [module.main]
 }
@@ -272,13 +272,13 @@ resource "test_assertions" "l3extIp_A" {
 
   equal "addr" {
     description = "addr"
-    got         = data.aci_rest.l3extIp_A.content.addr
+    got         = data.aci_rest_managed.l3extIp_A.content.addr
     want        = "1.1.1.1/24"
   }
 }
 
-data "aci_rest" "l3extMember_B" {
-  dn = "${data.aci_rest.l3extRsPathL3OutAtt.id}/mem-B"
+data "aci_rest_managed" "l3extMember_B" {
+  dn = "${data.aci_rest_managed.l3extRsPathL3OutAtt.id}/mem-B"
 
   depends_on = [module.main]
 }
@@ -288,19 +288,19 @@ resource "test_assertions" "l3extMember_B" {
 
   equal "addr" {
     description = "addr"
-    got         = data.aci_rest.l3extMember_B.content.addr
+    got         = data.aci_rest_managed.l3extMember_B.content.addr
     want        = "1.1.1.3/24"
   }
 
   equal "side" {
     description = "side"
-    got         = data.aci_rest.l3extMember_B.content.side
+    got         = data.aci_rest_managed.l3extMember_B.content.side
     want        = "B"
   }
 }
 
-data "aci_rest" "l3extIp_B" {
-  dn = "${data.aci_rest.l3extMember_B.id}/addr-[1.1.1.1/24]"
+data "aci_rest_managed" "l3extIp_B" {
+  dn = "${data.aci_rest_managed.l3extMember_B.id}/addr-[1.1.1.1/24]"
 
   depends_on = [module.main]
 }
@@ -310,13 +310,13 @@ resource "test_assertions" "l3extIp_B" {
 
   equal "addr" {
     description = "addr"
-    got         = data.aci_rest.l3extIp_B.content.addr
+    got         = data.aci_rest_managed.l3extIp_B.content.addr
     want        = "1.1.1.1/24"
   }
 }
 
-data "aci_rest" "bgpPeerP" {
-  dn = "${data.aci_rest.l3extRsPathL3OutAtt.id}/peerP-[1.1.1.10]"
+data "aci_rest_managed" "bgpPeerP" {
+  dn = "${data.aci_rest_managed.l3extRsPathL3OutAtt.id}/peerP-[1.1.1.10]"
 
   depends_on = [module.main]
 }
@@ -326,61 +326,61 @@ resource "test_assertions" "bgpPeerP" {
 
   equal "addr" {
     description = "addr"
-    got         = data.aci_rest.bgpPeerP.content.addr
+    got         = data.aci_rest_managed.bgpPeerP.content.addr
     want        = "1.1.1.10"
   }
 
   equal "addrTCtrl" {
     description = "addrTCtrl"
-    got         = data.aci_rest.bgpPeerP.content.addrTCtrl
+    got         = data.aci_rest_managed.bgpPeerP.content.addrTCtrl
     want        = "af-mcast,af-ucast"
   }
 
   equal "allowedSelfAsCnt" {
     description = "allowedSelfAsCnt"
-    got         = data.aci_rest.bgpPeerP.content.allowedSelfAsCnt
+    got         = data.aci_rest_managed.bgpPeerP.content.allowedSelfAsCnt
     want        = "3"
   }
 
   equal "ctrl" {
     description = "ctrl"
-    got         = data.aci_rest.bgpPeerP.content.ctrl
+    got         = data.aci_rest_managed.bgpPeerP.content.ctrl
     want        = "send-com,send-ext-com"
   }
 
   equal "descr" {
     description = "descr"
-    got         = data.aci_rest.bgpPeerP.content.descr
+    got         = data.aci_rest_managed.bgpPeerP.content.descr
     want        = "BGP Peer"
   }
 
   equal "peerCtrl" {
     description = "peerCtrl"
-    got         = data.aci_rest.bgpPeerP.content.peerCtrl
+    got         = data.aci_rest_managed.bgpPeerP.content.peerCtrl
     want        = "bfd"
   }
 
   equal "privateASctrl" {
     description = "privateASctrl"
-    got         = data.aci_rest.bgpPeerP.content.privateASctrl
+    got         = data.aci_rest_managed.bgpPeerP.content.privateASctrl
     want        = ""
   }
 
   equal "ttl" {
     description = "ttl"
-    got         = data.aci_rest.bgpPeerP.content.ttl
+    got         = data.aci_rest_managed.bgpPeerP.content.ttl
     want        = "10"
   }
 
   equal "weight" {
     description = "weight"
-    got         = data.aci_rest.bgpPeerP.content.weight
+    got         = data.aci_rest_managed.bgpPeerP.content.weight
     want        = "100"
   }
 }
 
-data "aci_rest" "bgpAsP" {
-  dn = "${data.aci_rest.bgpPeerP.id}/as"
+data "aci_rest_managed" "bgpAsP" {
+  dn = "${data.aci_rest_managed.bgpPeerP.id}/as"
 
   depends_on = [module.main]
 }
@@ -390,7 +390,7 @@ resource "test_assertions" "bgpAsP" {
 
   equal "asn" {
     description = "asn"
-    got         = data.aci_rest.bgpAsP.content.asn
+    got         = data.aci_rest_managed.bgpAsP.content.asn
     want        = "12345"
   }
 }

@@ -5,37 +5,37 @@ terraform {
     }
 
     aci = {
-      source  = "netascode/aci"
-      version = ">=0.2.0"
+      source  = "CiscoDevNet/aci"
+      version = ">=2.0.0"
     }
   }
 }
 
-resource "aci_rest" "fvTenant" {
+resource "aci_rest_managed" "fvTenant" {
   dn         = "uni/tn-TF"
   class_name = "fvTenant"
 }
 
-resource "aci_rest" "l3extOut" {
-  dn         = "${aci_rest.fvTenant.id}/out-L3OUT1"
+resource "aci_rest_managed" "l3extOut" {
+  dn         = "${aci_rest_managed.fvTenant.id}/out-L3OUT1"
   class_name = "l3extOut"
 }
 
-resource "aci_rest" "l3extLNodeP" {
-  dn         = "${aci_rest.l3extOut.id}/lnodep-NP1"
+resource "aci_rest_managed" "l3extLNodeP" {
+  dn         = "${aci_rest_managed.l3extOut.id}/lnodep-NP1"
   class_name = "l3extLNodeP"
 }
 
 module "main" {
   source = "../.."
 
-  tenant       = aci_rest.fvTenant.content.name
-  l3out        = aci_rest.l3extOut.content.name
-  node_profile = aci_rest.l3extLNodeP.content.name
+  tenant       = aci_rest_managed.fvTenant.content.name
+  l3out        = aci_rest_managed.l3extOut.content.name
+  node_profile = aci_rest_managed.l3extLNodeP.content.name
   name         = "IP1"
 }
 
-data "aci_rest" "l3extLIfP" {
+data "aci_rest_managed" "l3extLIfP" {
   dn = module.main.dn
 
   depends_on = [module.main]
@@ -46,7 +46,7 @@ resource "test_assertions" "l3extLIfP" {
 
   equal "name" {
     description = "name"
-    got         = data.aci_rest.l3extLIfP.content.name
+    got         = data.aci_rest_managed.l3extLIfP.content.name
     want        = module.main.name
   }
 }

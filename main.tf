@@ -42,7 +42,7 @@ locals {
   ])
 }
 
-resource "aci_rest" "l3extLIfP" {
+resource "aci_rest_managed" "l3extLIfP" {
   dn         = "uni/tn-${var.tenant}/out-${var.l3out}/lnodep-${var.node_profile}/lifp-${var.name}"
   class_name = "l3extLIfP"
   content = {
@@ -50,9 +50,9 @@ resource "aci_rest" "l3extLIfP" {
   }
 }
 
-resource "aci_rest" "ospfIfP" {
+resource "aci_rest_managed" "ospfIfP" {
   count      = var.ospf_authentication_key != "" || var.ospf_interface_policy != "" ? 1 : 0
-  dn         = "${aci_rest.l3extLIfP.dn}/ospfIfP"
+  dn         = "${aci_rest_managed.l3extLIfP.dn}/ospfIfP"
   class_name = "ospfIfP"
   content = {
     name      = var.ospf_interface_profile_name
@@ -66,36 +66,36 @@ resource "aci_rest" "ospfIfP" {
   }
 }
 
-resource "aci_rest" "ospfRsIfPol" {
+resource "aci_rest_managed" "ospfRsIfPol" {
   count      = var.ospf_interface_policy != "" ? 1 : 0
-  dn         = "${aci_rest.ospfIfP[0].dn}/rsIfPol"
+  dn         = "${aci_rest_managed.ospfIfP[0].dn}/rsIfPol"
   class_name = "ospfRsIfPol"
   content = {
     tnOspfIfPolName = var.ospf_interface_policy
   }
 }
 
-resource "aci_rest" "bfdIfP" {
+resource "aci_rest_managed" "bfdIfP" {
   count      = var.bfd_policy != "" ? 1 : 0
-  dn         = "${aci_rest.l3extLIfP.dn}/bfdIfP"
+  dn         = "${aci_rest_managed.l3extLIfP.dn}/bfdIfP"
   class_name = "bfdIfP"
   content = {
     "type" = "none"
   }
 }
 
-resource "aci_rest" "bfdRsIfPol" {
+resource "aci_rest_managed" "bfdRsIfPol" {
   count      = var.bfd_policy != "" ? 1 : 0
-  dn         = "${aci_rest.bfdIfP[0].dn}/rsIfPol"
+  dn         = "${aci_rest_managed.bfdIfP[0].dn}/rsIfPol"
   class_name = "bfdRsIfPol"
   content = {
     tnBfdIfPolName = var.bfd_policy
   }
 }
 
-resource "aci_rest" "l3extRsPathL3OutAtt" {
+resource "aci_rest_managed" "l3extRsPathL3OutAtt" {
   for_each   = { for item in local.interfaces : item.key => item.value }
-  dn         = "${aci_rest.l3extLIfP.dn}/rspathL3OutAtt-[${each.value.tDn}]"
+  dn         = "${aci_rest_managed.l3extLIfP.dn}/rspathL3OutAtt-[${each.value.tDn}]"
   class_name = "l3extRsPathL3OutAtt"
   content = {
     addr       = each.value.ip
@@ -113,9 +113,9 @@ resource "aci_rest" "l3extRsPathL3OutAtt" {
   }
 }
 
-resource "aci_rest" "l3extMember_A" {
+resource "aci_rest_managed" "l3extMember_A" {
   for_each   = { for item in local.interfaces : item.key => item.value if item.value.type == "vpc" }
-  dn         = "${aci_rest.l3extRsPathL3OutAtt[each.key].dn}/mem-A"
+  dn         = "${aci_rest_managed.l3extRsPathL3OutAtt[each.key].dn}/mem-A"
   class_name = "l3extMember"
   content = {
     addr = each.value.ip_a
@@ -123,18 +123,18 @@ resource "aci_rest" "l3extMember_A" {
   }
 }
 
-resource "aci_rest" "l3extIp_A" {
+resource "aci_rest_managed" "l3extIp_A" {
   for_each   = { for item in local.interfaces : item.key => item.value if item.value.type == "vpc" }
-  dn         = "${aci_rest.l3extMember_A[each.key].dn}/addr-[${each.value.ip_shared}]"
+  dn         = "${aci_rest_managed.l3extMember_A[each.key].dn}/addr-[${each.value.ip_shared}]"
   class_name = "l3extIp"
   content = {
     addr = each.value.ip_shared
   }
 }
 
-resource "aci_rest" "l3extMember_B" {
+resource "aci_rest_managed" "l3extMember_B" {
   for_each   = { for item in local.interfaces : item.key => item.value if item.value.type == "vpc" }
-  dn         = "${aci_rest.l3extRsPathL3OutAtt[each.key].dn}/mem-B"
+  dn         = "${aci_rest_managed.l3extRsPathL3OutAtt[each.key].dn}/mem-B"
   class_name = "l3extMember"
   content = {
     addr = each.value.ip_b
@@ -142,18 +142,18 @@ resource "aci_rest" "l3extMember_B" {
   }
 }
 
-resource "aci_rest" "l3extIp_B" {
+resource "aci_rest_managed" "l3extIp_B" {
   for_each   = { for item in local.interfaces : item.key => item.value if item.value.type == "vpc" }
-  dn         = "${aci_rest.l3extMember_B[each.key].dn}/addr-[${each.value.ip_shared}]"
+  dn         = "${aci_rest_managed.l3extMember_B[each.key].dn}/addr-[${each.value.ip_shared}]"
   class_name = "l3extIp"
   content = {
     addr = each.value.ip_shared
   }
 }
 
-resource "aci_rest" "bgpPeerP" {
+resource "aci_rest_managed" "bgpPeerP" {
   for_each   = { for item in local.bgp_peers : item.key => item.value }
-  dn         = "${aci_rest.l3extRsPathL3OutAtt[each.value.interface].dn}/peerP-[${each.value.ip}]"
+  dn         = "${aci_rest_managed.l3extRsPathL3OutAtt[each.value.interface].dn}/peerP-[${each.value.ip}]"
   class_name = "bgpPeerP"
   content = {
     addr             = each.value.ip
@@ -173,9 +173,9 @@ resource "aci_rest" "bgpPeerP" {
   }
 }
 
-resource "aci_rest" "bgpAsP" {
+resource "aci_rest_managed" "bgpAsP" {
   for_each   = { for item in local.bgp_peers : item.key => item.value }
-  dn         = "${aci_rest.bgpPeerP[each.key].dn}/as"
+  dn         = "${aci_rest_managed.bgpPeerP[each.key].dn}/as"
   class_name = "bgpAsP"
   content = {
     asn = each.value.remote_as

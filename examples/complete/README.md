@@ -14,7 +14,7 @@ Note that this example will create resources. Resources can be destroyed with `t
 ```hcl
 module "aci_l3out_interface_profile" {
   source  = "netascode/l3out-interface-profile/aci"
-  version = ">= 0.0.1"
+  version = ">= 0.1.0"
 
   tenant                      = "ABC"
   l3out                       = "L3OUT1"
@@ -51,6 +51,5 @@ module "aci_l3out_interface_profile" {
     }]
   }]
 }
-
 ```
 <!-- END_TF_DOCS -->
