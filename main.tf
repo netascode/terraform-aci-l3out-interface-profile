@@ -1,19 +1,19 @@
 locals {
   interfaces = flatten([
     for int in var.interfaces : {
-      key = "${int.type == "vpc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[eth${int.module != null ? int.module : 1}/${int.port}]")}"
+      key = int.type == "vpc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[eth${int.module != null ? int.module : 1}/${int.port}]")
       value = {
         ip          = int.type != "vpc" ? int.ip : "0.0.0.0"
         svi         = int.svi == true ? "yes" : "no"
-        description = int.description != null ? int.description : ""
+        description = int.description
         type        = int.type
         vlan        = int.vlan
-        mac         = int.mac != null ? int.mac : "00:22:BD:F8:19:FF"
-        mtu         = int.mtu != null ? int.mtu : "inherit"
+        mac         = int.mac
+        mtu         = int.mtu
         node_id     = int.node_id
         node2_id    = int.node2_id
-        module      = int.module != null ? int.module : 1
-        pod_id      = int.pod_id != null ? int.pod_id : 1
+        module      = int.module
+        pod_id      = int.pod_id
         port        = int.port
         channel     = int.channel
         ip_a        = int.ip_a
@@ -28,12 +28,12 @@ locals {
       for peer in coalesce(int.bgp_peers, []) : {
         key = "${int.type == "vpc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[eth${int.module != null ? int.module : 1}/${int.port}]")}/${peer.ip}"
         value = {
-          interface   = "${int.type == "vpc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[eth${int.module != null ? int.module : 1}/${int.port}]")}"
+          interface   = int.type == "vpc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[eth${int.module != null ? int.module : 1}/${int.port}]")
           ip          = peer.ip
-          description = peer.description != null ? peer.description : ""
+          description = peer.description
           bfd         = peer.bfd == true ? "bfd" : ""
-          ttl         = peer.ttl != null ? peer.ttl : 1
-          weight      = peer.weight != null ? peer.weight : 0
+          ttl         = peer.ttl
+          weight      = peer.weight
           password    = peer.password != null ? peer.password : null
           remote_as   = peer.remote_as
         }
