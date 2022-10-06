@@ -1,3 +1,12 @@
+## 0.2.1 (unreleased)
+
+- Add support for PIM policy
+- Add support for IGMP interface policy
+- Add support for QoS class
+- Add support for custom QoS policy
+- Add support for floating SVI
+- Add multiple options to BGP peers
+
 ## 0.2.0
 
 - Update to support new Terraform 1.3 `optional` syntax

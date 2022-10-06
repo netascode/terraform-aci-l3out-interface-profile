@@ -41,6 +41,9 @@ module "main" {
   ospf_authentication_key_id  = 2
   ospf_authentication_type    = "md5"
   ospf_interface_policy       = "OSPF1"
+  igmp_interface_policy       = "IIP"
+  qos_class                   = "level2"
+  custom_qos_policy           = "CQP"
   interfaces = [{
     description = "Interface 1"
     type        = "vpc"
@@ -56,13 +59,32 @@ module "main" {
     ip_b        = "1.1.1.3/24"
     ip_shared   = "1.1.1.1/24"
     bgp_peers = [{
-      ip          = "1.1.1.10"
-      description = "BGP Peer"
-      bfd         = true
-      ttl         = 10
-      weight      = 100
-      password    = "PASSWORD"
-      remote_as   = "12345"
+      ip                               = "4.4.4.4"
+      remote_as                        = 12345
+      description                      = "BGP Peer Description"
+      allow_self_as                    = true
+      as_override                      = true
+      disable_peer_as_check            = true
+      next_hop_self                    = false
+      send_community                   = true
+      send_ext_community               = true
+      password                         = "BgpPassword"
+      allowed_self_as_count            = 5
+      bfd                              = true
+      disable_connected_check          = true
+      ttl                              = 2
+      weight                           = 200
+      remove_all_private_as            = true
+      remove_private_as                = true
+      replace_private_as_with_local_as = true
+      unicast_address_family           = false
+      multicast_address_family         = false
+      admin_state                      = false
+      local_as                         = 12346
+      as_propagate                     = "no-prepend"
+      peer_prefix_policy               = "PPP"
+      export_route_control             = "ERC"
+      import_route_control             = "IRC"
     }]
   }]
 }
@@ -156,6 +178,38 @@ resource "test_assertions" "bfdRsIfPol" {
     description = "tnBfdIfPolName"
     got         = data.aci_rest_managed.bfdRsIfPol.content.tnBfdIfPolName
     want        = "BFD1"
+  }
+}
+
+data "aci_rest_managed" "igmpRsIfPol" {
+  dn = "${data.aci_rest_managed.l3extLIfP.id}/igmpIfP/rsIfPol"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "igmpRsIfPol" {
+  component = "igmpRsIfPol"
+
+  equal "tDn" {
+    description = "tDn"
+    got         = data.aci_rest_managed.igmpRsIfPol.content.tDn
+    want        = "uni/tn-TF/igmpIfPol-IIP"
+  }
+}
+
+data "aci_rest_managed" "l3extRsLIfPCustQosPol" {
+  dn = "${data.aci_rest_managed.l3extLIfP.id}/rslIfPCustQosPol"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "l3extRsLIfPCustQosPol" {
+  component = "l3extRsLIfPCustQosPol"
+
+  equal "tnQosCustomPolName" {
+    description = "tnQosCustomPolName"
+    got         = data.aci_rest_managed.l3extRsLIfPCustQosPol.content.tnQosCustomPolName
+    want        = "CQP"
   }
 }
 
@@ -318,7 +372,7 @@ resource "test_assertions" "l3extIp_B" {
 }
 
 data "aci_rest_managed" "bgpPeerP" {
-  dn = "${data.aci_rest_managed.l3extRsPathL3OutAtt.id}/peerP-[1.1.1.10]"
+  dn = "${data.aci_rest_managed.l3extRsPathL3OutAtt.id}/peerP-[4.4.4.4]"
 
   depends_on = [module.main]
 }
@@ -329,55 +383,61 @@ resource "test_assertions" "bgpPeerP" {
   equal "addr" {
     description = "addr"
     got         = data.aci_rest_managed.bgpPeerP.content.addr
-    want        = "1.1.1.10"
-  }
-
-  equal "addrTCtrl" {
-    description = "addrTCtrl"
-    got         = data.aci_rest_managed.bgpPeerP.content.addrTCtrl
-    want        = "af-mcast,af-ucast"
-  }
-
-  equal "allowedSelfAsCnt" {
-    description = "allowedSelfAsCnt"
-    got         = data.aci_rest_managed.bgpPeerP.content.allowedSelfAsCnt
-    want        = "3"
-  }
-
-  equal "ctrl" {
-    description = "ctrl"
-    got         = data.aci_rest_managed.bgpPeerP.content.ctrl
-    want        = "send-com,send-ext-com"
+    want        = "4.4.4.4"
   }
 
   equal "descr" {
     description = "descr"
     got         = data.aci_rest_managed.bgpPeerP.content.descr
-    want        = "BGP Peer"
+    want        = "BGP Peer Description"
+  }
+
+  equal "ctrl" {
+    description = "ctrl"
+    got         = data.aci_rest_managed.bgpPeerP.content.ctrl
+    want        = "allow-self-as,as-override,dis-peer-as-check,send-com,send-ext-com"
+  }
+
+  equal "allowedSelfAsCnt" {
+    description = "allowedSelfAsCnt"
+    got         = data.aci_rest_managed.bgpPeerP.content.allowedSelfAsCnt
+    want        = "5"
   }
 
   equal "peerCtrl" {
     description = "peerCtrl"
     got         = data.aci_rest_managed.bgpPeerP.content.peerCtrl
-    want        = "bfd"
-  }
-
-  equal "privateASctrl" {
-    description = "privateASctrl"
-    got         = data.aci_rest_managed.bgpPeerP.content.privateASctrl
-    want        = ""
+    want        = "bfd,dis-conn-check"
   }
 
   equal "ttl" {
     description = "ttl"
     got         = data.aci_rest_managed.bgpPeerP.content.ttl
-    want        = "10"
+    want        = "2"
   }
 
   equal "weight" {
     description = "weight"
     got         = data.aci_rest_managed.bgpPeerP.content.weight
-    want        = "100"
+    want        = "200"
+  }
+
+  equal "privateASctrl" {
+    description = "privateASctrl"
+    got         = data.aci_rest_managed.bgpPeerP.content.privateASctrl
+    want        = "remove-all,remove-exclusive,replace-as"
+  }
+
+  equal "addrTCtrl" {
+    description = "addrTCtrl"
+    got         = data.aci_rest_managed.bgpPeerP.content.addrTCtrl
+    want        = ""
+  }
+
+  equal "adminSt" {
+    description = "adminSt"
+    got         = data.aci_rest_managed.bgpPeerP.content.adminSt
+    want        = "disabled"
   }
 }
 
@@ -394,5 +454,87 @@ resource "test_assertions" "bgpAsP" {
     description = "asn"
     got         = data.aci_rest_managed.bgpAsP.content.asn
     want        = "12345"
+  }
+}
+
+data "aci_rest_managed" "bgpLocalAsnP" {
+  dn = "${data.aci_rest_managed.bgpPeerP.id}/localasn"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "bgpLocalAsnP" {
+  component = "bgpLocalAsnP"
+
+  equal "localAsn" {
+    description = "localAsn"
+    got         = data.aci_rest_managed.bgpLocalAsnP.content.localAsn
+    want        = "12346"
+  }
+
+  equal "asnPropagate" {
+    description = "asnPropagate"
+    got         = data.aci_rest_managed.bgpLocalAsnP.content.asnPropagate
+    want        = "no-prepend"
+  }
+}
+
+data "aci_rest_managed" "bgpRsPeerPfxPol" {
+  dn = "${data.aci_rest_managed.bgpPeerP.id}/rspeerPfxPol"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "bgpRsPeerPfxPol" {
+  component = "bgpRsPeerPfxPol"
+
+  equal "tnBgpPeerPfxPolName" {
+    description = "tnBgpPeerPfxPolName"
+    got         = data.aci_rest_managed.bgpRsPeerPfxPol.content.tnBgpPeerPfxPolName
+    want        = "PPP"
+  }
+}
+
+data "aci_rest_managed" "bgpRsPeerToProfile_export" {
+  dn = "${data.aci_rest_managed.bgpPeerP.id}/rspeerToProfile-[uni/tn-TF/prof-ERC]-export"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "bgpRsPeerToProfile_export" {
+  component = "bgpRsPeerToProfile_export"
+
+  equal "tDn" {
+    description = "tDn"
+    got         = data.aci_rest_managed.bgpRsPeerToProfile_export.content.tDn
+    want        = "uni/tn-TF/prof-ERC"
+  }
+
+  equal "direction" {
+    description = "direction"
+    got         = data.aci_rest_managed.bgpRsPeerToProfile_export.content.direction
+    want        = "export"
+  }
+}
+
+data "aci_rest_managed" "bgpRsPeerToProfile_import" {
+  dn = "${data.aci_rest_managed.bgpPeerP.id}/rspeerToProfile-[uni/tn-TF/prof-IRC]-import"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "bgpRsPeerToProfile_import" {
+  component = "bgpRsPeerToProfile_import"
+
+  equal "tDn" {
+    description = "tDn"
+    got         = data.aci_rest_managed.bgpRsPeerToProfile_import.content.tDn
+    want        = "uni/tn-TF/prof-IRC"
+  }
+
+  equal "direction" {
+    description = "direction"
+    got         = data.aci_rest_managed.bgpRsPeerToProfile_import.content.direction
+    want        = "import"
   }
 }

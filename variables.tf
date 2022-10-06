@@ -99,33 +99,101 @@ variable "ospf_interface_policy" {
   }
 }
 
+variable "pim_policy" {
+  description = "PIM policy name."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.-]{0,64}$", var.pim_policy))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
+  }
+}
+
+variable "igmp_interface_policy" {
+  description = "IGMP interface policy name."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.-]{0,64}$", var.igmp_interface_policy))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
+  }
+}
+
+variable "qos_class" {
+  description = "QoS class. Choices: `level1`, `level2`, `level3`, `level4`, `level5`, `level6`, `unspecified`."
+  type        = string
+  default     = "unspecified"
+
+  validation {
+    condition     = contains(["level1", "level2", "level3", "level4", "level5", "level6", "unspecified"], var.qos_class)
+    error_message = "Allowed values are `level1`, `level2`, `level3`, `level4`, `level5`, `level6` or `unspecified`."
+  }
+}
+
+variable "custom_qos_policy" {
+  description = "Custom QoS policy name."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.-]{0,64}$", var.custom_qos_policy))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
+  }
+}
+
 variable "interfaces" {
-  description = "List of interfaces. Default value `svi`: false. Choices `type`. `access`, `pc`, `vpc`. Default value `type`: `access`. Allowed values `vlan`: 1-4096. Format `mac`: `12:34:56:78:9A:BC`. `mtu`: Allowed values are `inherit` or a number between 576 and 9216. Allowed values `node_id`, `node2_id`: 1-4000. Allowed values `pod_id`: 1-255. Default value `pod_id`: 1. Allowed values `module`: 1-9. Default value `module`: 1. Allowed values `port`: 1-127. Default value `bgp_peers.bfd`: false. Allowed values `bgp_peers.ttl`: 1-255. Default value `bgp_peers.ttl`: 1. Allowed values `bgp_peers.weight`: 0-65535. Default value `bgp_peers.weight`: 0. Allowed values `bgp_peers.remote_as`: 0-4294967295."
+  description = "List of interfaces. Default value `svi`: false. Default value `floating_svi`: false. Choices `type`. `access`, `pc`, `vpc`. Default value `type`: `access`. Allowed values `vlan`: 1-4096. Format `mac`: `12:34:56:78:9A:BC`. `mtu`: Allowed values are `inherit` or a number between 576 and 9216. Allowed values `node_id`, `node2_id`: 1-4000. Allowed values `pod_id`: 1-255. Default value `pod_id`: 1. Allowed values `module`: 1-9. Default value `module`: 1. Allowed values `port`: 1-127. Default value `bgp_peers.bfd`: false. Allowed values `bgp_peers.ttl`: 1-255. Default value `bgp_peers.ttl`: 1. Allowed values `bgp_peers.weight`: 0-65535. Default value `bgp_peers.weight`: 0. Allowed values `bgp_peers.remote_as`: 0-4294967295."
   type = list(object({
-    description = optional(string, "")
-    type        = optional(string, "access")
-    svi         = optional(bool, false)
-    vlan        = optional(number)
-    mac         = optional(string, "00:22:BD:F8:19:FF")
-    mtu         = optional(string, "inherit")
-    node_id     = number
-    node2_id    = optional(number)
-    pod_id      = optional(number, 1)
-    module      = optional(number, 1)
-    port        = optional(number)
-    channel     = optional(string)
-    ip          = optional(string)
-    ip_a        = optional(string)
-    ip_b        = optional(string)
-    ip_shared   = optional(string)
+    description  = optional(string, "")
+    type         = optional(string, "access")
+    node_id      = number
+    node2_id     = optional(number)
+    pod_id       = optional(number, 1)
+    module       = optional(number, 1)
+    port         = optional(number)
+    channel      = optional(string)
+    ip           = optional(string)
+    svi          = optional(bool, false)
+    floating_svi = optional(bool, false)
+    vlan         = optional(number)
+    mac          = optional(string, "00:22:BD:F8:19:FF")
+    mtu          = optional(string, "inherit")
+    ip_a         = optional(string)
+    ip_b         = optional(string)
+    ip_shared    = optional(string)
     bgp_peers = optional(list(object({
-      ip          = string
-      description = optional(string, "")
-      bfd         = optional(bool, false)
-      ttl         = optional(number, 1)
-      weight      = optional(number, 0)
-      password    = optional(string)
-      remote_as   = string
+      ip                               = string
+      remote_as                        = string
+      description                      = optional(string, "")
+      allow_self_as                    = optional(bool, false)
+      as_override                      = optional(bool, false)
+      disable_peer_as_check            = optional(bool, false)
+      next_hop_self                    = optional(bool, false)
+      send_community                   = optional(bool, false)
+      send_ext_community               = optional(bool, false)
+      password                         = optional(string)
+      allowed_self_as_count            = optional(number, 3)
+      bfd                              = optional(bool, false)
+      disable_connected_check          = optional(bool, false)
+      ttl                              = optional(number, 1)
+      weight                           = optional(number, 0)
+      remove_all_private_as            = optional(bool, false)
+      remove_private_as                = optional(bool, false)
+      replace_private_as_with_local_as = optional(bool, false)
+      unicast_address_family           = optional(bool, true)
+      multicast_address_family         = optional(bool, true)
+      admin_state                      = optional(bool, true)
+      local_as                         = optional(number)
+      as_propagate                     = optional(string, "none")
+      peer_prefix_policy               = optional(string)
+      export_route_control             = optional(string)
+      import_route_control             = optional(string)
+    })), [])
+    paths = optional(list(object({
+      physical_domain = string
+      floating_ip     = string
     })), [])
   }))
   default = []
@@ -209,6 +277,13 @@ variable "interfaces" {
 
   validation {
     condition = alltrue(flatten([
+      for i in var.interfaces : [for b in coalesce(i.bgp_peers, []) : b.remote_as >= 0 && b.remote_as <= 4294967295]
+    ]))
+    error_message = "`bgp_peers.remote_as`: Minimum value: `0`. Maximum value: `4294967295`."
+  }
+
+  validation {
+    condition = alltrue(flatten([
       for i in var.interfaces : [for b in coalesce(i.bgp_peers, []) : b.description == null || try(can(regex("^[a-zA-Z0-9\\!#$%()*,-./:;@ _{|}~?&+]{0,128}$", b.description)), false)]
     ]))
     error_message = "`bgp_peers.description`: Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `\\`, `!`, `#`, `$`, `%`, `(`, `)`, `*`, `,`, `-`, `.`, `/`, `:`, `;`, `@`, ` `, `_`, `{`, `|`, }`, `~`, `?`, `&`, `+`. Maximum characters: 128."
@@ -216,22 +291,43 @@ variable "interfaces" {
 
   validation {
     condition = alltrue(flatten([
-      for i in var.interfaces : [for b in coalesce(i.bgp_peers, []) : b.ttl == null || try(b.ttl >= 1 && b.ttl <= 255, false)]
+      for i in var.interfaces : [for b in coalesce(i.bgp_peers, []) : try(b.allowed_self_as_count >= 1 && b.allowed_self_as_count <= 10, false)]
+    ]))
+    error_message = "`bgp_peers.allowed_self_as_count`: Minimum value: `1`. Maximum value: `10`."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for i in var.interfaces : [for b in coalesce(i.bgp_peers, []) : try(b.ttl >= 1 && b.ttl <= 255, false)]
     ]))
     error_message = "`bgp_peers.ttl`: Minimum value: `1`. Maximum value: `255`."
   }
 
   validation {
     condition = alltrue(flatten([
-      for i in var.interfaces : [for b in coalesce(i.bgp_peers, []) : b.weight == null || try(b.weight >= 0 && b.weight <= 65535, false)]
+      for i in var.interfaces : [for b in coalesce(i.bgp_peers, []) : try(b.weight >= 0 && b.weight <= 65535, false)]
     ]))
     error_message = "`bgp_peers.weight`: Minimum value: `0`. Maximum value: `65535`."
   }
 
   validation {
     condition = alltrue(flatten([
-      for i in var.interfaces : [for b in coalesce(i.bgp_peers, []) : b.remote_as >= 0 && b.remote_as <= 4294967295]
+      for i in var.interfaces : [for b in coalesce(i.bgp_peers, []) : b.local_as == null || try(b.local_as >= 0 && b.local_as <= 4294967295, false)]
     ]))
-    error_message = "`bgp_peers.remote_as`: Minimum value: `0`. Maximum value: `4294967295`."
+    error_message = "`bgp_peers.local_as`: Minimum value: `0`. Maximum value: `4294967295`."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for i in var.interfaces : [for b in coalesce(i.bgp_peers, []) : b.as_propagate == null || try(contains(["none", "no-prepend", "replace-as", "dual-as"], b.as_propagate), false)]
+    ]))
+    error_message = "`bgp_peers.as_propagate`: Allowed value are: `none`, `no-prepend`, `replace-as` or `dual-as`."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for i in var.interfaces : [for p in coalesce(i.paths, []) : can(regex("^[a-zA-Z0-9_.-]{0,64}$", p.physical_domain))]
+    ]))
+    error_message = "`paths.physical_domain`: Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
   }
 }

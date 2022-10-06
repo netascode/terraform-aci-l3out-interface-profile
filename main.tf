@@ -1,41 +1,73 @@
 locals {
   interfaces = flatten([
     for int in var.interfaces : {
-      key = int.type == "vpc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[eth${int.module != null ? int.module : 1}/${int.port}]")
+      key = int.type == "vpc" ? "topology/pod-${int.pod_id}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[eth${int.module}/${int.port}]")
       value = {
-        ip          = int.type != "vpc" ? int.ip : "0.0.0.0"
-        svi         = int.svi == true ? "yes" : "no"
-        description = int.description
-        type        = int.type
-        vlan        = int.vlan
-        mac         = int.mac
-        mtu         = int.mtu
-        node_id     = int.node_id
-        node2_id    = int.node2_id
-        module      = int.module
-        pod_id      = int.pod_id
-        port        = int.port
-        channel     = int.channel
-        ip_a        = int.ip_a
-        ip_b        = int.ip_b
-        ip_shared   = int.ip_shared
-        tDn         = int.type == "vpc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[eth${int.module != null ? int.module : 1}/${int.port}]")
+        ip           = int.type != "vpc" ? int.ip : "0.0.0.0"
+        svi          = int.svi == true ? "yes" : "no"
+        floating_svi = int.floating_svi
+        description  = int.description
+        type         = int.type
+        vlan         = int.vlan
+        mac          = int.mac
+        mtu          = int.mtu
+        node_id      = int.node_id
+        node2_id     = int.node2_id
+        module       = int.module
+        pod_id       = int.pod_id
+        port         = int.port
+        channel      = int.channel
+        ip_a         = int.ip_a
+        ip_b         = int.ip_b
+        ip_shared    = int.ip_shared
+        tDn          = int.type == "vpc" ? "topology/pod-${int.pod_id}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[eth${int.module}/${int.port}]")
       }
     }
   ])
   bgp_peers = flatten([
     for int in var.interfaces : [
       for peer in coalesce(int.bgp_peers, []) : {
-        key = "${int.type == "vpc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[eth${int.module != null ? int.module : 1}/${int.port}]")}/${peer.ip}"
+        key = "${int.type == "vpc" ? "topology/pod-${int.pod_id}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[eth${int.module}/${int.port}]")}/${peer.ip}"
         value = {
-          interface   = int.type == "vpc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id != null ? int.pod_id : 1}/paths-${int.node_id}/pathep-[eth${int.module != null ? int.module : 1}/${int.port}]")
-          ip          = peer.ip
-          description = peer.description
-          bfd         = peer.bfd == true ? "bfd" : ""
-          ttl         = peer.ttl
-          weight      = peer.weight
-          password    = peer.password != null ? peer.password : null
-          remote_as   = peer.remote_as
+          interface                        = int.type == "vpc" ? "topology/pod-${int.pod_id}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[eth${int.module}/${int.port}]")
+          ip                               = peer.ip
+          remote_as                        = peer.remote_as
+          description                      = peer.description
+          allow_self_as                    = peer.allow_self_as
+          as_override                      = peer.as_override
+          disable_peer_as_check            = peer.disable_peer_as_check
+          next_hop_self                    = peer.next_hop_self
+          send_community                   = peer.send_community
+          send_ext_community               = peer.send_ext_community
+          password                         = peer.password
+          allowed_self_as_count            = peer.allowed_self_as_count
+          bfd                              = peer.bfd
+          disable_connected_check          = peer.disable_connected_check
+          ttl                              = peer.ttl
+          weight                           = peer.weight
+          remove_all_private_as            = peer.remove_all_private_as
+          remove_private_as                = peer.remove_private_as
+          replace_private_as_with_local_as = peer.replace_private_as_with_local_as
+          unicast_address_family           = peer.unicast_address_family
+          multicast_address_family         = peer.multicast_address_family
+          admin_state                      = peer.admin_state
+          local_as                         = peer.local_as
+          as_propagate                     = peer.as_propagate
+          peer_prefix_policy               = peer.peer_prefix_policy
+          export_route_control             = peer.export_route_control
+          import_route_control             = peer.import_route_control
+        }
+      }
+    ]
+  ])
+  paths = flatten([
+    for int in var.interfaces : [
+      for path in coalesce(int.paths, []) : {
+        key = "${int.type == "vpc" ? "topology/pod-${int.pod_id}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[eth${int.module}/${int.port}]")}/${path.floating_ip}"
+        value = {
+          interface       = int.type == "vpc" ? "topology/pod-${int.pod_id}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[eth${int.module}/${int.port}]")
+          floating_ip     = path.floating_ip
+          physical_domain = path.physical_domain
         }
       }
     ]
@@ -47,6 +79,7 @@ resource "aci_rest_managed" "l3extLIfP" {
   class_name = "l3extLIfP"
   content = {
     name = var.name
+    prio = var.qos_class
   }
 }
 
@@ -93,8 +126,47 @@ resource "aci_rest_managed" "bfdRsIfPol" {
   }
 }
 
+resource "aci_rest_managed" "pimIfP" {
+  count      = var.pim_policy != "" ? 1 : 0
+  dn         = "${aci_rest_managed.l3extLIfP.dn}/pimifp"
+  class_name = "pimIfP"
+}
+
+resource "aci_rest_managed" "pimRsIfPol" {
+  count      = var.pim_policy != "" ? 1 : 0
+  dn         = "${aci_rest_managed.pimIfP[0].dn}/rsIfPol"
+  class_name = "pimRsIfPol"
+  content = {
+    tDn = "uni/tn-${var.tenant}/pimifpol-${var.pim_policy}"
+  }
+}
+
+resource "aci_rest_managed" "igmpIfP" {
+  count      = var.igmp_interface_policy != "" ? 1 : 0
+  dn         = "${aci_rest_managed.l3extLIfP.dn}/igmpIfP"
+  class_name = "igmpIfP"
+}
+
+resource "aci_rest_managed" "igmpRsIfPol" {
+  count      = var.igmp_interface_policy != "" ? 1 : 0
+  dn         = "${aci_rest_managed.igmpIfP[0].dn}/rsIfPol"
+  class_name = "igmpRsIfPol"
+  content = {
+    tDn = "uni/tn-${var.tenant}/igmpIfPol-${var.igmp_interface_policy}"
+  }
+}
+
+resource "aci_rest_managed" "l3extRsLIfPCustQosPol" {
+  count      = var.custom_qos_policy != "" ? 1 : 0
+  dn         = "${aci_rest_managed.l3extLIfP.dn}/rslIfPCustQosPol"
+  class_name = "l3extRsLIfPCustQosPol"
+  content = {
+    tnQosCustomPolName = var.custom_qos_policy
+  }
+}
+
 resource "aci_rest_managed" "l3extRsPathL3OutAtt" {
-  for_each   = { for item in local.interfaces : item.key => item.value }
+  for_each   = { for item in local.interfaces : item.key => item.value if item.value.floating_svi == false }
   dn         = "${aci_rest_managed.l3extLIfP.dn}/rspathL3OutAtt-[${each.value.tDn}]"
   class_name = "l3extRsPathL3OutAtt"
   content = {
@@ -151,21 +223,52 @@ resource "aci_rest_managed" "l3extIp_B" {
   }
 }
 
+resource "aci_rest_managed" "l3extVirtualLIfP" {
+  for_each   = { for item in local.interfaces : item.key => item.value if item.value.floating_svi == true && item.value.vlan != null }
+  dn         = "${aci_rest_managed.l3extLIfP.dn}/vlifp-[${each.value.tDn}]-[vlan-${each.value.vlan}]"
+  class_name = "l3extVirtualLIfP"
+  content = {
+    addr       = each.value.ip
+    autostate  = "disabled"
+    descr      = each.value.description
+    encapScope = "local"
+    ifInstT    = "ext-svi"
+    encap      = "vlan-${each.value.vlan}"
+    ipv6Dad    = "enabled"
+    llAddr     = "::"
+    mac        = each.value.mac
+    mode       = "regular"
+    mtu        = each.value.mtu
+    nodeDn     = "topology/pod-${each.value.pod_id}/node-${each.value.node_id}"
+  }
+}
+
+resource "aci_rest_managed" "l3extRsDynPathAtt" {
+  for_each   = { for item in local.paths : item.key => item.value }
+  dn         = "${aci_rest_managed.l3extVirtualLIfP[each.value.interface].dn}/rsdynPathAtt-[uni/phys-${each.value.physical_domain}]"
+  class_name = "l3extRsDynPathAtt"
+  content = {
+    floatingAddr = each.value.floating_ip
+    tDn          = "uni/phys-${each.value.physical_domain}"
+  }
+}
+
 resource "aci_rest_managed" "bgpPeerP" {
   for_each   = { for item in local.bgp_peers : item.key => item.value }
   dn         = "${aci_rest_managed.l3extRsPathL3OutAtt[each.value.interface].dn}/peerP-[${each.value.ip}]"
   class_name = "bgpPeerP"
   content = {
     addr             = each.value.ip
-    addrTCtrl        = "af-mcast,af-ucast"
-    allowedSelfAsCnt = "3"
-    ctrl             = "send-com,send-ext-com"
     descr            = each.value.description
-    peerCtrl         = each.value.bfd
-    privateASctrl    = ""
+    ctrl             = join(",", concat(each.value.allow_self_as == true ? ["allow-self-as"] : [], each.value.as_override == true ? ["as-override"] : [], each.value.disable_peer_as_check == true ? ["dis-peer-as-check"] : [], each.value.next_hop_self == true ? ["nh-sel"] : [], each.value.send_community == true ? ["send-com"] : [], each.value.send_ext_community == true ? ["send-ext-com"] : []))
+    password         = each.value.password
+    allowedSelfAsCnt = each.value.allowed_self_as_count
+    peerCtrl         = join(",", concat(each.value.bfd == true ? ["bfd"] : [], each.value.disable_connected_check == true ? ["dis-conn-check"] : []))
     ttl              = each.value.ttl
     weight           = each.value.weight
-    password         = each.value.password
+    privateASctrl    = join(",", concat(each.value.remove_all_private_as == true ? ["remove-all"] : [], each.value.remove_private_as == true ? ["remove-exclusive"] : [], each.value.replace_private_as_with_local_as == true ? ["replace-as"] : []))
+    addrTCtrl        = join(",", concat(each.value.unicast_address_family == true ? ["af-ucast"] : [], each.value.multicast_address_family == true ? ["af-mcast"] : []))
+    adminSt          = each.value.admin_state == true ? "enabled" : "disabled"
   }
 
   lifecycle {
@@ -179,5 +282,44 @@ resource "aci_rest_managed" "bgpAsP" {
   class_name = "bgpAsP"
   content = {
     asn = each.value.remote_as
+  }
+}
+
+resource "aci_rest_managed" "bgpLocalAsnP" {
+  for_each   = { for item in local.bgp_peers : item.key => item.value if item.value.local_as != null }
+  dn         = "${aci_rest_managed.bgpPeerP[each.key].dn}/localasn"
+  class_name = "bgpLocalAsnP"
+  content = {
+    localAsn     = each.value.local_as
+    asnPropagate = each.value.as_propagate
+  }
+}
+
+resource "aci_rest_managed" "bgpRsPeerPfxPol" {
+  for_each   = { for item in local.bgp_peers : item.key => item.value if item.value.peer_prefix_policy != null }
+  dn         = "${aci_rest_managed.bgpPeerP[each.key].dn}/rspeerPfxPol"
+  class_name = "bgpRsPeerPfxPol"
+  content = {
+    tnBgpPeerPfxPolName = each.value.peer_prefix_policy
+  }
+}
+
+resource "aci_rest_managed" "bgpRsPeerToProfile_export" {
+  for_each   = { for item in local.bgp_peers : item.key => item.value if item.value.export_route_control != null }
+  dn         = "${aci_rest_managed.bgpPeerP[each.key].dn}/rspeerToProfile-[uni/tn-${var.tenant}/prof-${each.value.export_route_control}]-export"
+  class_name = "bgpRsPeerToProfile"
+  content = {
+    tDn       = "uni/tn-${var.tenant}/prof-${each.value.export_route_control}"
+    direction = "export"
+  }
+}
+
+resource "aci_rest_managed" "bgpRsPeerToProfile_import" {
+  for_each   = { for item in local.bgp_peers : item.key => item.value if item.value.import_route_control != null }
+  dn         = "${aci_rest_managed.bgpPeerP[each.key].dn}/rspeerToProfile-[uni/tn-${var.tenant}/prof-${each.value.import_route_control}]-import"
+  class_name = "bgpRsPeerToProfile"
+  content = {
+    tDn       = "uni/tn-${var.tenant}/prof-${each.value.import_route_control}"
+    direction = "import"
   }
 }
