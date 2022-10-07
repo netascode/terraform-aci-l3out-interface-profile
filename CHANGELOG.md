@@ -1,3 +1,7 @@
+## 0.2.2 (unreleased)
+
+- Fix floating SVI objects
+
 ## 0.2.1
 
 - Add support for PIM policy
