@@ -235,6 +235,15 @@ resource "aci_rest_managed" "l3extRsPathL3OutAtt" {
   }
 }
 
+resource "aci_rest_managed" "l3extIp" {
+  for_each   = { for item in local.interfaces : item.key => item.value if item.value.type != "vpc" && item.value.ip_shared != null }
+  dn         = "${aci_rest_managed.l3extRsPathL3OutAtt[each.key].dn}/addr-[${each.value.ip_shared}]"
+  class_name = "l3extIp"
+  content = {
+    addr = each.value.ip_shared
+  }
+}
+
 resource "aci_rest_managed" "l3extMember_A" {
   for_each   = { for item in local.interfaces : item.key => item.value if item.value.type == "vpc" }
   dn         = "${aci_rest_managed.l3extRsPathL3OutAtt[each.key].dn}/mem-A"

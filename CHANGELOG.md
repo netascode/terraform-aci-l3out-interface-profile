@@ -1,3 +1,7 @@
+## 0.2.3 (unreleased)
+
+- Enable secondary (shared) IP for non-vPC SVI interfaces
+
 ## 0.2.2
 
 - Fix floating SVI objects
