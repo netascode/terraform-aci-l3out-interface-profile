@@ -255,7 +255,7 @@ resource "aci_rest_managed" "l3extMember_A" {
 }
 
 resource "aci_rest_managed" "l3extIp_A" {
-  for_each   = { for item in local.interfaces : item.key => item.value if item.value.type == "vpc" }
+  for_each   = { for item in local.interfaces : item.key => item.value if item.value.type == "vpc" && item.value.ip_shared != null }
   dn         = "${aci_rest_managed.l3extMember_A[each.key].dn}/addr-[${each.value.ip_shared}]"
   class_name = "l3extIp"
   content = {
@@ -274,7 +274,7 @@ resource "aci_rest_managed" "l3extMember_B" {
 }
 
 resource "aci_rest_managed" "l3extIp_B" {
-  for_each   = { for item in local.interfaces : item.key => item.value if item.value.type == "vpc" }
+  for_each   = { for item in local.interfaces : item.key => item.value if item.value.type == "vpc" && item.value.ip_shared != null }
   dn         = "${aci_rest_managed.l3extMember_B[each.key].dn}/addr-[${each.value.ip_shared}]"
   class_name = "l3extIp"
   content = {
