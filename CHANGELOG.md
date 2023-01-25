@@ -1,3 +1,7 @@
+## 0.2.4 (unreleased)
+
+- Fix issue with `next_hop_self` attribute
+
 ## 0.2.3
 
 - Enable secondary (shared) IP for non-vPC SVI interfaces
