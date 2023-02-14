@@ -64,6 +64,7 @@ variable "ospf_authentication_key" {
   description = "OSPF authentication key."
   type        = string
   default     = ""
+  sensitive   = true
 }
 
 variable "ospf_authentication_key_id" {
