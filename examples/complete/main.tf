@@ -6,6 +6,8 @@ module "aci_l3out_interface_profile" {
   l3out                       = "L3OUT1"
   node_profile                = "NP1"
   name                        = "IP1"
+  multipod                    = false
+  remote_leaf                 = false
   bfd_policy                  = "BFD1"
   ospf_interface_profile_name = "OSPFP1"
   ospf_authentication_key     = "12345678"

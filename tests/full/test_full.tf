@@ -35,6 +35,8 @@ module "main" {
   l3out                       = aci_rest_managed.l3extOut.content.name
   node_profile                = aci_rest_managed.l3extLNodeP.content.name
   name                        = "IP1"
+  multipod                    = false
+  remote_leaf                 = false
   bfd_policy                  = "BFD1"
   ospf_interface_profile_name = "OSPFP1"
   ospf_authentication_key     = "12345678"
