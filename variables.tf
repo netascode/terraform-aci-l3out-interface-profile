@@ -336,10 +336,11 @@ variable "interfaces" {
 variable "multipod" {
   description = "Multipod L3out flag"
   type        = bool
-
+  default     = false
 }
 
 variable "remote_leaf" {
   description = "Remote leaf L3out flag"
   type        = bool
+  default     = false
 }
