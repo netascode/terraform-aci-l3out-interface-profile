@@ -332,3 +332,15 @@ variable "interfaces" {
     error_message = "`paths.physical_domain`: Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
   }
 }
+
+variable "multipod" {
+  description = "Multipod L3out flag"
+  type        = bool
+  default     = false
+}
+
+variable "remote_leaf" {
+  description = "Remote leaf L3out flag"
+  type        = bool
+  default     = false
+}
