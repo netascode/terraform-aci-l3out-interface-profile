@@ -1,3 +1,7 @@
+## 0.2.7 (unreleased)
+
+- Fix issue with BGP `connectivityType` parameter
+
 ## 0.2.6
 
 - Add `remote_leaf` variable
