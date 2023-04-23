@@ -1,3 +1,7 @@
+## 0.2.8 (unreleased)
+
+- Fix issue with BGP `connectivityType` parameter
+
 ## 0.2.7
 
 - Fix issue with BGP `connectivityType` parameter
