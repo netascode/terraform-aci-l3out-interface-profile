@@ -1,3 +1,7 @@
+## 0.2.9 (unreleased)
+
+- Add `autostate` option for SVIs
+
 ## 0.2.8
 
 - Fix issue with BGP `connectivityType` parameter
