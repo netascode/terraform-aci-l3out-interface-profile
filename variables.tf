@@ -157,6 +157,7 @@ variable "interfaces" {
     channel      = optional(string)
     ip           = optional(string)
     svi          = optional(bool, false)
+    autostate    = optional(bool, false)
     floating_svi = optional(bool, false)
     vlan         = optional(number)
     mac          = optional(string, "00:22:BD:F8:19:FF")
