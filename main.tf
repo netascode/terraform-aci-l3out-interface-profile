@@ -8,7 +8,7 @@ locals {
         description = int.description
         type        = int.type
         vlan        = int.vlan
-        autostate   = int.autostate
+        autostate   = int.autostate ? "enabled" : "disabled"
         mac         = int.mac
         mtu         = int.mtu
         node_id     = int.node_id
@@ -225,7 +225,7 @@ resource "aci_rest_managed" "l3extRsPathL3OutAtt" {
     descr      = each.value.description
     encapScope = "local"
     ifInstT    = each.value.vlan != null ? (each.value.svi == "yes" ? "ext-svi" : "sub-interface") : "l3-port"
-    autostate  = each.value.autostate
+    autostate  = each.value.autostate ? "enabled" : "disabled"
     encap      = each.value.vlan != null ? "vlan-${each.value.vlan}" : null
     ipv6Dad    = "enabled"
     llAddr     = "::"
@@ -289,7 +289,7 @@ resource "aci_rest_managed" "l3extVirtualLIfP" {
   class_name = "l3extVirtualLIfP"
   content = {
     addr       = each.value.ip
-    autostate  = each.value.autostate
+    autostate  = each.value.autostate ? "enabled" : "disabled"
     descr      = each.value.description
     encapScope = "local"
     ifInstT    = "ext-svi"
