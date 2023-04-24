@@ -88,6 +88,21 @@ module "main" {
       export_route_control             = "ERC"
       import_route_control             = "IRC"
     }]
+    }, {
+    floating_svi = true
+    vlan         = 133
+    ip           = "10.0.0.2/24"
+    node_id      = 1001
+    paths = [
+      {
+        floating_ip       = "10.0.0.1/24"
+        vmware_vmm_domain = "ABC"
+        elag              = "ELAG123"
+      },
+      {
+        floating_ip = "10.0.0.1/24"
+      vmware_vmm_domain = "ABC123" }
+    ]
   }]
 }
 
