@@ -100,8 +100,9 @@ module "main" {
         elag              = "ELAG123"
       },
       {
-        floating_ip = "10.0.0.1/24"
-      vmware_vmm_domain = "ABC123" }
+        floating_ip     = "10.0.0.1/24"
+        physical_domain = "ABC123"
+      }
     ]
   }]
 }
