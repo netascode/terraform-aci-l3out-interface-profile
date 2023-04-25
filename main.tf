@@ -113,7 +113,7 @@ locals {
   floating_paths = flatten([
     for int in var.interfaces : [
       for path in coalesce(int.paths, []) : {
-        key = "${int.node_id}/${int.vlan}/${path.vmware_vmm_domain}/${path.floating_ip}"
+        key = "${int.node_id}/${int.vlan}/${path.physical_domain != null ? path.physical_domain : (path.vmware_vmm_domain != null ? path.vmware_vmm_domain : "")}/${path.floating_ip}"
         value = {
           node              = "${int.node_id}/${int.vlan}"
           floating_ip       = path.floating_ip
