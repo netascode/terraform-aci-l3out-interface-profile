@@ -115,11 +115,12 @@ locals {
   floating_paths = flatten([
     for int in var.interfaces : [
       for path in coalesce(int.paths, []) : {
-        key = "${int.node_id}/${int.vlan}/${path.floating_ip}"
+        key = "${int.node_id}/${int.vlan}/${coalesce(path.physical_domain, path.vmware_vmm_domain)}/${path.floating_ip}"
         value = {
-          node            = "${int.node_id}/${int.vlan}"
-          floating_ip     = path.floating_ip
-          physical_domain = path.physical_domain
+          node        = "${int.node_id}/${int.vlan}"
+          floating_ip = path.floating_ip
+          domain      = path.physical_domain != null ? "phys-${path.physical_domain}" : (path.vmware_vmm_domain != null ? "vmmp-VMware/dom-${path.vmware_vmm_domain}" : "")
+          elag        = path.elag
         }
       }
     ] if int.floating_svi == true
@@ -306,11 +307,27 @@ resource "aci_rest_managed" "l3extVirtualLIfP" {
 
 resource "aci_rest_managed" "l3extRsDynPathAtt" {
   for_each   = { for item in local.floating_paths : item.key => item.value }
-  dn         = "${aci_rest_managed.l3extVirtualLIfP[each.value.node].dn}/rsdynPathAtt-[uni/phys-${each.value.physical_domain}]"
+  dn         = "${aci_rest_managed.l3extVirtualLIfP[each.value.node].dn}/rsdynPathAtt-[uni/${each.value.domain}]"
   class_name = "l3extRsDynPathAtt"
   content = {
     floatingAddr = each.value.floating_ip
-    tDn          = "uni/phys-${each.value.physical_domain}"
+    tDn          = "uni/${each.value.domain}"
+  }
+}
+
+resource "aci_rest_managed" "l3extVirtualLIfPLagPolAtt" {
+  for_each   = { for item in local.floating_paths : item.key => item.value if item.value.elag != null }
+  dn         = "${aci_rest_managed.l3extRsDynPathAtt[each.key].dn}/vlifplagpolatt"
+  class_name = "l3extVirtualLIfPLagPolAtt"
+}
+
+resource "aci_rest_managed" "l3extRsVSwitchEnhancedLagPol" {
+  for_each   = { for item in local.floating_paths : item.key => item.value if item.value.elag != null }
+  dn         = "${aci_rest_managed.l3extVirtualLIfPLagPolAtt[each.key].dn}/rsvSwitchEnhancedLagPol-[uni/${each.value.domain}/vswitchpolcont/enlacplagp-${each.value.elag}]"
+  class_name = "l3extRsVSwitchEnhancedLagPol"
+  content = {
+    tDn = "uni/${each.value.domain}/vswitchpolcont/enlacplagp-${each.value.elag}"
+
   }
 }
 

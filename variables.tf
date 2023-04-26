@@ -194,8 +194,10 @@ variable "interfaces" {
       import_route_control             = optional(string)
     })), [])
     paths = optional(list(object({
-      physical_domain = string
-      floating_ip     = string
+      physical_domain   = optional(string)
+      vmware_vmm_domain = optional(string)
+      elag              = optional(string)
+      floating_ip       = string
     })), [])
   }))
   default = []
@@ -328,9 +330,23 @@ variable "interfaces" {
 
   validation {
     condition = alltrue(flatten([
-      for i in var.interfaces : [for p in coalesce(i.paths, []) : can(regex("^[a-zA-Z0-9_.-]{0,64}$", p.physical_domain))]
+      for i in var.interfaces : [for p in coalesce(i.paths, []) : p.physical_domain == null || try(can(regex("^[a-zA-Z0-9_.-]{0,64}$", p.physical_domain)))]
     ]))
     error_message = "`paths.physical_domain`: Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for i in var.interfaces : [for p in coalesce(i.paths, []) : p.vmware_vmm_domain == null || try(can(regex("^[a-zA-Z0-9_.-]{0,64}$", p.vmware_vmm_domain)))]
+    ]))
+    error_message = "`paths.vmware_vmm_domain`: Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
+  }
+
+  validation {
+    condition = alltrue(flatten([
+      for i in var.interfaces : [for p in coalesce(i.paths, []) : p.elag == null || try(can(regex("^[a-zA-Z0-9_.-]{0,64}$", p.elag)))]
+    ]))
+    error_message = "`paths.elag`: Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
   }
 }
 
