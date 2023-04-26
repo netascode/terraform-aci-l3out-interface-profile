@@ -1,4 +1,4 @@
-## 0.2.9 (unreleased)
+## 0.2.9
 
 - Add `autostate` option for SVIs
 - Add support for floating SVIs for VMware VMM domains
