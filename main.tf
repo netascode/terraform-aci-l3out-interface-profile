@@ -3,24 +3,25 @@ locals {
     for int in var.interfaces : {
       key = int.type == "vpc" ? "topology/pod-${int.pod_id}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[eth${int.module}/${int.port}]")
       value = {
-        ip          = int.type != "vpc" ? int.ip : "0.0.0.0"
-        svi         = int.svi == true ? "yes" : "no"
-        description = int.description
-        type        = int.type
-        vlan        = int.vlan
-        autostate   = int.autostate ? "enabled" : "disabled"
-        mac         = int.mac
-        mtu         = int.mtu
-        node_id     = int.node_id
-        node2_id    = int.node2_id
-        module      = int.module
-        pod_id      = int.pod_id
-        port        = int.port
-        channel     = int.channel
-        ip_a        = int.ip_a
-        ip_b        = int.ip_b
-        ip_shared   = int.ip_shared
-        tDn         = int.type == "vpc" ? "topology/pod-${int.pod_id}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[eth${int.module}/${int.port}]")
+        ip              = int.type != "vpc" ? int.ip : "0.0.0.0"
+        svi             = int.svi == true ? "yes" : "no"
+        description     = int.description
+        type            = int.type
+        vlan            = int.vlan
+        autostate       = int.autostate ? "enabled" : "disabled"
+        multipod_direct = int.multipod_direct ? "yes" : "no"
+        mac             = int.mac
+        mtu             = int.mtu
+        node_id         = int.node_id
+        node2_id        = int.node2_id
+        module          = int.module
+        pod_id          = int.pod_id
+        port            = int.port
+        channel         = int.channel
+        ip_a            = int.ip_a
+        ip_b            = int.ip_b
+        ip_shared       = int.ip_shared
+        tDn             = int.type == "vpc" ? "topology/pod-${int.pod_id}/protpaths-${int.node_id}-${int.node2_id}/pathep-[${int.channel}]" : (int.type == "pc" ? "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[${int.channel}]" : "topology/pod-${int.pod_id}/paths-${int.node_id}/pathep-[eth${int.module}/${int.port}]")
       }
     } if int.floating_svi == false
   ])
@@ -223,18 +224,19 @@ resource "aci_rest_managed" "l3extRsPathL3OutAtt" {
   dn         = "${aci_rest_managed.l3extLIfP.dn}/rspathL3OutAtt-[${each.value.tDn}]"
   class_name = "l3extRsPathL3OutAtt"
   content = {
-    addr       = each.value.ip
-    descr      = each.value.description
-    encapScope = "local"
-    ifInstT    = each.value.vlan != null ? (each.value.svi == "yes" ? "ext-svi" : "sub-interface") : "l3-port"
-    autostate  = each.value.autostate
-    encap      = each.value.vlan != null ? "vlan-${each.value.vlan}" : null
-    ipv6Dad    = "enabled"
-    llAddr     = "::"
-    mac        = each.value.mac
-    mode       = "regular"
-    mtu        = each.value.mtu
-    tDn        = each.value.tDn
+    addr             = each.value.ip
+    descr            = each.value.description
+    encapScope       = "local"
+    ifInstT          = each.value.vlan != null ? (each.value.svi == "yes" ? "ext-svi" : "sub-interface") : "l3-port"
+    autostate        = each.value.autostate
+    isMultiPodDirect = each.value.multipod_direct
+    encap            = each.value.vlan != null ? "vlan-${each.value.vlan}" : null
+    ipv6Dad          = "enabled"
+    llAddr           = "::"
+    mac              = each.value.mac
+    mode             = "regular"
+    mtu              = each.value.mtu
+    tDn              = each.value.tDn
   }
 }
 
