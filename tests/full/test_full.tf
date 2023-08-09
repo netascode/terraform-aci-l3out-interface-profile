@@ -31,7 +31,8 @@ resource "aci_rest_managed" "l3extLNodeP" {
 module "main" {
   source = "../.."
 
-  tenant                      = aci_rest_managed.fvTenant.content.name
+#  tenant                      = aci_rest_managed.fvTenant.content.name
+  tenant = "TF"
   l3out                       = aci_rest_managed.l3extOut.content.name
   node_profile                = aci_rest_managed.l3extLNodeP.content.name
   name                        = "IP1"
@@ -89,6 +90,8 @@ module "main" {
       import_route_control             = "IRC"
     }]
   }]
+
+  depends_on = [ aci_rest_managed.l3extLNodeP ]
 }
 
 data "aci_rest_managed" "l3extLIfP" {

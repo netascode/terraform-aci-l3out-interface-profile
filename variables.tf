@@ -361,3 +361,20 @@ variable "remote_leaf" {
   type        = bool
   default     = false
 }
+
+variable "sr_mpls" {
+  description = "SR MPLS L3out flag"
+  type        = bool
+  default     = false
+}
+
+variable "transport_data_plane" {
+  description = "Transport Data Plane. Allowed values: sr_mpls, mpls"
+  type        = string
+  default     = "sr_mpls"
+
+  validation {
+    condition     = contains(["sr_mpls", "mpls"], var.transport_data_plane)
+    error_message = "`bgp_peers.as_propagate`: Allowed value are: `sr_mpls`, `mpls`."
+  }
+}
