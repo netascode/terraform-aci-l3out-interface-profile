@@ -36,7 +36,7 @@ module "main" {
   node_profile = aci_rest_managed.l3extLNodeP.content.name
   name         = "IP1"
 
-  depends_on = [ aci_rest_managed.l3extLNodeP ]
+  depends_on = [aci_rest_managed.l3extLNodeP]
 }
 
 data "aci_rest_managed" "l3extLIfP" {
