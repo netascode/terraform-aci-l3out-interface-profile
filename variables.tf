@@ -351,30 +351,30 @@ variable "interfaces" {
 }
 
 variable "multipod" {
-  description = "Multipod L3out flag"
+  description = "Multipod L3out flag."
   type        = bool
   default     = false
 }
 
 variable "remote_leaf" {
-  description = "Remote leaf L3out flag"
+  description = "Remote leaf L3out flag."
   type        = bool
   default     = false
 }
 
 variable "sr_mpls" {
-  description = "SR MPLS L3out flag"
+  description = "SR MPLS L3out flag."
   type        = bool
   default     = false
 }
 
 variable "transport_data_plane" {
-  description = "Transport Data Plane. Allowed values: sr_mpls, mpls"
+  description = "Transport Data Plane. Allowed values: `sr_mpls`, `mpls`. Default value: `sr_mpls`."
   type        = string
   default     = "sr_mpls"
 
   validation {
     condition     = contains(["sr_mpls", "mpls"], var.transport_data_plane)
-    error_message = "`bgp_peers.as_propagate`: Allowed value are: `sr_mpls`, `mpls`."
+    error_message = "`transport_data_plane`: Allowed value are: `sr_mpls`, `mpls`."
   }
 }

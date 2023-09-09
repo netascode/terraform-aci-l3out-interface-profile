@@ -16,16 +16,25 @@ terraform {
 resource "aci_rest_managed" "fvTenant" {
   dn         = "uni/tn-TF"
   class_name = "fvTenant"
+  content = {
+    name = "TF"
+  }
 }
 
 resource "aci_rest_managed" "l3extOut" {
-  dn         = "${aci_rest_managed.fvTenant.id}/out-L3OUT1"
+  dn         = "${aci_rest_managed.fvTenant.dn}/out-L3OUT1"
   class_name = "l3extOut"
+  content = {
+    name = "L3OUT1"
+  }
 }
 
 resource "aci_rest_managed" "l3extLNodeP" {
-  dn         = "${aci_rest_managed.l3extOut.id}/lnodep-NP1"
+  dn         = "${aci_rest_managed.l3extOut.dn}/lnodep-NP1"
   class_name = "l3extLNodeP"
+  content = {
+    name = "NP1"
+  }
 }
 
 module "main" {

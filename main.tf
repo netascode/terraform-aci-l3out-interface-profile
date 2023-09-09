@@ -482,11 +482,9 @@ resource "aci_rest_managed" "mplsIfP" {
 
 resource "aci_rest_managed" "mplsRsIfPol" {
   count      = var.tenant == "infra" && var.sr_mpls == true ? 1 : 0
-  dn         = "${aci_rest_managed.l3extLIfP.dn}/mplsIfP/rsIfPol"
+  dn         = "${aci_rest_managed.mplsIfP[0].dn}/rsIfPol"
   class_name = "mplsRsIfPol"
   content = {
     tnMplsIfPolName = "default"
   }
-
-  depends_on = [aci_rest_managed.mplsIfP]
 }
