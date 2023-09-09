@@ -338,14 +338,14 @@ resource "aci_rest_managed" "bgpPeerP" {
   content = {
     addr             = each.value.ip
     descr            = each.value.description
-    ctrl             = var.remote_leaf == true ? "allow-self-as" : (join(",", concat(each.value.allow_self_as == true ? ["allow-self-as"] : [], each.value.as_override == true ? ["as-override"] : [], each.value.disable_peer_as_check == true ? ["dis-peer-as-check"] : [], each.value.next_hop_self == true ? ["nh-self"] : [], each.value.send_community == true ? ["send-com"] : [], each.value.send_ext_community == true ? ["send-ext-com"] : [])))
+    ctrl             = var.remote_leaf == true ? "allow-self-as" : (join(",", concat(each.value.allow_self_as == true ? ["allow-self-as"] : [], each.value.as_override == true ? ["as-override"] : [], each.value.disable_peer_as_check == true ? ["dis-peer-as-check"] : [], each.value.next_hop_self == true ? ["nh-self"] : [], each.value.send_community == true ? ["send-com"] : [], each.value.send_ext_community == true ? ["send-ext-com"] : [], var.transport_data_plane == "mpls" ? ["segment-routing-disable"] : [])))
     password         = sensitive(each.value.password)
     allowedSelfAsCnt = each.value.allowed_self_as_count
     peerCtrl         = join(",", concat(each.value.bfd == true ? ["bfd"] : [], each.value.disable_connected_check == true ? ["dis-conn-check"] : []))
     ttl              = each.value.ttl
     weight           = each.value.weight
     privateASctrl    = join(",", concat(each.value.remove_all_private_as == true ? ["remove-all"] : [], each.value.remove_private_as == true ? ["remove-exclusive"] : [], each.value.replace_private_as_with_local_as == true ? ["replace-as"] : []))
-    addrTCtrl        = var.remote_leaf == true ? "af-ucast" : (join(",", concat(each.value.multicast_address_family == true ? ["af-mcast"] : [], each.value.unicast_address_family == true ? ["af-ucast"] : [])))
+    addrTCtrl        = var.remote_leaf == true ? "af-ucast" : (join(",", concat(each.value.multicast_address_family == true && var.sr_mpls == false ? ["af-mcast"] : [], var.sr_mpls == true ? ["af-label-ucast"] : [], each.value.unicast_address_family == true ? ["af-ucast"] : [])))
     adminSt          = each.value.admin_state == true ? "enabled" : "disabled"
     connectivityType = var.remote_leaf == true && var.multipod == false && var.tenant == "infra" ? "multipod,multisite" : (var.remote_leaf == false && var.multipod == true && var.tenant == "infra" ? "multipod" : null)
   }
@@ -472,4 +472,21 @@ resource "aci_rest_managed" "bgpRsPeerToProfile_import_floating" {
     tDn       = "uni/tn-${var.tenant}/prof-${each.value.import_route_control}"
     direction = "import"
   }
+}
+
+resource "aci_rest_managed" "mplsIfP" {
+  count      = var.tenant == "infra" && var.sr_mpls == true ? 1 : 0
+  dn         = "${aci_rest_managed.l3extLIfP.dn}/mplsIfP"
+  class_name = "mplsIfP"
+}
+
+resource "aci_rest_managed" "mplsRsIfPol" {
+  count      = var.tenant == "infra" && var.sr_mpls == true ? 1 : 0
+  dn         = "${aci_rest_managed.l3extLIfP.dn}/mplsIfP/rsIfPol"
+  class_name = "mplsRsIfPol"
+  content = {
+    tnMplsIfPolName = "default"
+  }
+
+  depends_on = [aci_rest_managed.mplsIfP]
 }
