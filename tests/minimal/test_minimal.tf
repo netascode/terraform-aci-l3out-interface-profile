@@ -31,12 +31,10 @@ resource "aci_rest_managed" "l3extLNodeP" {
 module "main" {
   source = "../.."
 
-  tenant       = "TF"
+  tenant       = aci_rest_managed.fvTenant.content.name
   l3out        = aci_rest_managed.l3extOut.content.name
   node_profile = aci_rest_managed.l3extLNodeP.content.name
   name         = "IP1"
-
-  depends_on = [aci_rest_managed.l3extLNodeP]
 }
 
 data "aci_rest_managed" "l3extLIfP" {
