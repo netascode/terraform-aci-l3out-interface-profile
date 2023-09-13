@@ -161,6 +161,43 @@ resource "aci_rest_managed" "ospfRsIfPol" {
   }
 }
 
+resource "aci_rest_managed" "eigrpIfP" {
+  count      = var.eigrp_interface_policy != "" ? 1 : 0
+  dn         = "${aci_rest_managed.l3extLIfP.dn}/eigrpIfP"
+  class_name = "eigrpIfP"
+  content = {
+    name = var.eigrp_interface_profile_name
+  }
+
+}
+
+resource "aci_rest_managed" "eigrpRsIfPol" {
+  count      = var.eigrp_interface_policy != "" ? 1 : 0
+  dn         = "${aci_rest_managed.eigrpIfP[0].dn}/rsIfPol"
+  class_name = "eigrpRsIfPol"
+  content = {
+    tnEigrpIfPolName = var.eigrp_interface_policy
+  }
+}
+
+resource "aci_rest_managed" "eigrpAuthIfP" {
+  count      = var.eigrp_keychain_policy_name != "" ? 1 : 0
+  dn         = "${aci_rest_managed.eigrpIfP[0].dn}/eigrpAuthIfP"
+  class_name = "eigrpAuthIfP"
+  content = {
+
+  }
+
+  child {
+    rn         = "keychainp-${var.eigrp_keychain_policy_name}"
+    class_name = "eigrpRsKeyChainPol"
+    content = {
+      tnFvKeyChainPolName = var.eigrp_keychain_policy_name
+    }
+  }
+
+}
+
 resource "aci_rest_managed" "bfdIfP" {
   count      = var.bfd_policy != "" ? 1 : 0
   dn         = "${aci_rest_managed.l3extLIfP.dn}/bfdIfP"

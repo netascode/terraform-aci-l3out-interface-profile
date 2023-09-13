@@ -100,6 +100,39 @@ variable "ospf_interface_policy" {
   }
 }
 
+variable "eigrp_interface_profile_name" {
+  description = "EIGRP interface profile name."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.-]{0,64}$", var.eigrp_interface_profile_name))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
+  }
+}
+
+variable "eigrp_keychain_policy_name" {
+  description = "EIGRP keychain policy name."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.-]{0,64}$", var.eigrp_keychain_policy_name))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
+  }
+}
+
+variable "eigrp_interface_policy" {
+  description = "EIGRP interface policy name."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = can(regex("^[a-zA-Z0-9_.-]{0,64}$", var.eigrp_interface_policy))
+    error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
+  }
+}
+
 variable "pim_policy" {
   description = "PIM policy name."
   type        = string
