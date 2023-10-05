@@ -1,4 +1,4 @@
-## 0.2.11 (unreleased)
+## 0.2.11
 
 - Add option to specify `mode` for SVI interfaces
 
