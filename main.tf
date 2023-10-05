@@ -10,6 +10,7 @@ locals {
         vlan        = int.vlan
         autostate   = int.autostate ? "enabled" : "disabled"
         mac         = int.mac
+        mode        = int.mode
         mtu         = int.mtu
         node_id     = int.node_id
         node2_id    = int.node2_id
@@ -70,6 +71,7 @@ locals {
         description  = int.description
         vlan         = int.vlan
         mac          = int.mac
+        mode         = int.mode
         mtu          = int.mtu
         node_id      = int.node_id
         pod_id       = int.pod_id
@@ -232,7 +234,7 @@ resource "aci_rest_managed" "l3extRsPathL3OutAtt" {
     ipv6Dad    = "enabled"
     llAddr     = "::"
     mac        = each.value.mac
-    mode       = "regular"
+    mode       = each.value.mode
     mtu        = each.value.mtu
     tDn        = each.value.tDn
   }
@@ -299,7 +301,7 @@ resource "aci_rest_managed" "l3extVirtualLIfP" {
     ipv6Dad    = "enabled"
     llAddr     = "::"
     mac        = each.value.mac
-    mode       = "regular"
+    mode       = each.value.mode
     mtu        = each.value.mtu
     nodeDn     = "topology/pod-${each.value.pod_id}/node-${each.value.node_id}"
   }

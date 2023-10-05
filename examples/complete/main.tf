@@ -24,6 +24,7 @@ module "aci_l3out_interface_profile" {
     vlan        = 5
     mac         = "12:34:56:78:90:AB"
     mtu         = "1500"
+    mode        = "native"
     node_id     = 201
     node2_id    = 202
     pod_id      = 2
