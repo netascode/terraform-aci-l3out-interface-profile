@@ -1,3 +1,7 @@
+## 0.2.11 (unreleased)
+
+- Add option to specify `mode` for SVI interfaces
+
 ## 0.2.10
 
 - Add support for SR MPLS
