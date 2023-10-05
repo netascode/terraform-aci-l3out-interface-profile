@@ -62,6 +62,7 @@ module "main" {
     vlan        = 5
     mac         = "12:34:56:78:90:AB"
     mtu         = "1500"
+    mode        = "native"
     node_id     = 201
     node2_id    = 202
     pod_id      = 2
@@ -290,7 +291,7 @@ resource "test_assertions" "l3extRsPathL3OutAtt" {
   equal "mode" {
     description = "mode"
     got         = data.aci_rest_managed.l3extRsPathL3OutAtt.content.mode
-    want        = "regular"
+    want        = "native"
   }
 
   equal "mtu" {

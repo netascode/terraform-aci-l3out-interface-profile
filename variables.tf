@@ -162,6 +162,7 @@ variable "interfaces" {
     vlan         = optional(number)
     mac          = optional(string, "00:22:BD:F8:19:FF")
     mtu          = optional(string, "inherit")
+    mode         = optional(string, "regular")
     ip_a         = optional(string)
     ip_b         = optional(string)
     ip_shared    = optional(string)
@@ -235,6 +236,13 @@ variable "interfaces" {
       for i in var.interfaces : i.mtu == null || try(contains(["inherit"], i.mtu), false) || try(tonumber(i.mtu) >= 576 && tonumber(i.mtu) <= 9216, false)
     ])
     error_message = "`mtu`: Allowed values are `inherit` or a number between 576 and 9216."
+  }
+
+  validation {
+    condition = alltrue([
+      for i in var.interfaces : i.mode == null || try(contains(["regular", "untagged", "native"], i.mode), false)
+    ])
+    error_message = "`mode`: Allowed values are `regular`, `native` or `untagged`"
   }
 
   validation {
