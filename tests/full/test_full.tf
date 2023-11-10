@@ -40,21 +40,24 @@ resource "aci_rest_managed" "l3extLNodeP" {
 module "main" {
   source = "../.."
 
-  tenant                      = aci_rest_managed.fvTenant.content.name
-  l3out                       = aci_rest_managed.l3extOut.content.name
-  node_profile                = aci_rest_managed.l3extLNodeP.content.name
-  name                        = "IP1"
-  multipod                    = false
-  remote_leaf                 = false
-  bfd_policy                  = "BFD1"
-  ospf_interface_profile_name = "OSPFP1"
-  ospf_authentication_key     = "12345678"
-  ospf_authentication_key_id  = 2
-  ospf_authentication_type    = "md5"
-  ospf_interface_policy       = "OSPF1"
-  igmp_interface_policy       = "IIP"
-  qos_class                   = "level2"
-  custom_qos_policy           = "CQP"
+  tenant                       = aci_rest_managed.fvTenant.content.name
+  l3out                        = aci_rest_managed.l3extOut.content.name
+  node_profile                 = aci_rest_managed.l3extLNodeP.content.name
+  name                         = "IP1"
+  multipod                     = false
+  remote_leaf                  = false
+  bfd_policy                   = "BFD1"
+  ospf_interface_profile_name  = "OSPFP1"
+  ospf_authentication_key      = "12345678"
+  ospf_authentication_key_id   = 2
+  ospf_authentication_type     = "md5"
+  ospf_interface_policy        = "OSPF1"
+  eigrp_interface_profile_name = "EIGRP1"
+  eigrp_keychain_policy        = "EIGRP_KEYCHAIN"
+  eigrp_interface_policy       = "EIGRP1"
+  igmp_interface_policy        = "IIP"
+  qos_class                    = "level2"
+  custom_qos_policy            = "CQP"
   interfaces = [{
     description = "Interface 1"
     type        = "vpc"
@@ -158,6 +161,39 @@ resource "test_assertions" "ospfRsIfPol" {
     description = "tnOspfIfPolName"
     got         = data.aci_rest_managed.ospfRsIfPol.content.tnOspfIfPolName
     want        = "OSPF1"
+  }
+}
+
+data "aci_rest_managed" "eigrpIfP" {
+  dn = "${data.aci_rest_managed.l3extLIfP.id}/eigrpIfP"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "eigrpIfP" {
+  component = "eigrpIfP"
+
+  equal "name" {
+    description = "name"
+    got         = data.aci_rest_managed.eigrpIfP.content.name
+    want        = "EIGRP1"
+  }
+
+}
+
+data "aci_rest_managed" "eigrpRsIfPol" {
+  dn = "${data.aci_rest_managed.eigrpIfP.id}/rsIfPol"
+
+  depends_on = [module.main]
+}
+
+resource "test_assertions" "eigrpRsIfPol" {
+  component = "eigrpRsIfPol"
+
+  equal "tnEigrpIfPolName" {
+    description = "tnEigrpIfPolName"
+    got         = data.aci_rest_managed.eigrpRsIfPol.content.tnEigrpIfPolName
+    want        = "EIGRP1"
   }
 }
 
