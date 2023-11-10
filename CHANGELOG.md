@@ -1,3 +1,7 @@
+## 0.2.12 (unreleased)
+
+- Add support for EIGRP
+
 ## 0.2.11
 
 - Add option to specify `mode` for SVI interfaces
