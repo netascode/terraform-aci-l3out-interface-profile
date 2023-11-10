@@ -181,7 +181,7 @@ resource "aci_rest_managed" "eigrpRsIfPol" {
 }
 
 resource "aci_rest_managed" "eigrpAuthIfP" {
-  count      = var.eigrp_keychain_policy_name != "" ? 1 : 0
+  count      = var.eigrp_keychain_policy != "" ? 1 : 0
   dn         = "${aci_rest_managed.eigrpIfP[0].dn}/eigrpAuthIfP"
   class_name = "eigrpAuthIfP"
   content = {
@@ -189,10 +189,10 @@ resource "aci_rest_managed" "eigrpAuthIfP" {
   }
 
   child {
-    rn         = "keychainp-${var.eigrp_keychain_policy_name}"
+    rn         = "keychainp-${var.eigrp_keychain_policy}"
     class_name = "eigrpRsKeyChainPol"
     content = {
-      tnFvKeyChainPolName = var.eigrp_keychain_policy_name
+      tnFvKeyChainPolName = var.eigrp_keychain_policy
     }
   }
 
