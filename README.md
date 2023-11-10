@@ -104,7 +104,7 @@ module "aci_l3out_interface_profile" {
 | <a name="input_ospf_authentication_type"></a> [ospf\_authentication\_type](#input\_ospf\_authentication\_type) | OSPF authentication type. Choices: `none`, `simple`, `md5`. | `string` | `"none"` | no |
 | <a name="input_ospf_interface_policy"></a> [ospf\_interface\_policy](#input\_ospf\_interface\_policy) | OSPF interface policy name. | `string` | `""` | no |
 | <a name="input_eigrp_interface_profile_name"></a> [eigrp\_interface\_profile\_name](#input\_eigrp\_interface\_profile\_name) | EIGRP interface profile name. | `string` | `""` | no |
-| <a name="input_eigrp_keychain_policy_name"></a> [eigrp\_keychain\_policy\_name](#input\_eigrp\_keychain\_policy\_name) | EIGRP keychain policy name. | `string` | `""` | no |
+| <a name="input_eigrp_keychain_policy"></a> [eigrp\_keychain\_policy\_name](#input\_eigrp\_keychain\_policy\_name) | EIGRP keychain policy name. | `string` | `""` | no |
 | <a name="input_eigrp_interface_policy"></a> [eigrp\_interface\_policy](#input\_eigrp\_interface\_policy) | EIGRP interface policy name. | `string` | `""` | no |
 | <a name="input_pim_policy"></a> [pim\_policy](#input\_pim\_policy) | PIM policy name. | `string` | `""` | no |
 | <a name="input_igmp_interface_policy"></a> [igmp\_interface\_policy](#input\_igmp\_interface\_policy) | IGMP interface policy name. | `string` | `""` | no |
