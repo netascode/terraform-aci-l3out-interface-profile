@@ -111,13 +111,13 @@ variable "eigrp_interface_profile_name" {
   }
 }
 
-variable "eigrp_keychain_policy_name" {
+variable "eigrp_keychain_policy" {
   description = "EIGRP keychain policy name."
   type        = string
   default     = ""
 
   validation {
-    condition     = can(regex("^[a-zA-Z0-9_.-]{0,64}$", var.eigrp_keychain_policy_name))
+    condition     = can(regex("^[a-zA-Z0-9_.-]{0,64}$", var.eigrp_keychain_policy))
     error_message = "Allowed characters: `a`-`z`, `A`-`Z`, `0`-`9`, `_`, `.`, `-`. Maximum characters: 64."
   }
 }
