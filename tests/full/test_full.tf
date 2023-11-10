@@ -53,7 +53,7 @@ module "main" {
   ospf_authentication_type     = "md5"
   ospf_interface_policy        = "OSPF1"
   eigrp_interface_profile_name = "EIGRP1"
-  eigrp_keychain_policy_name   = "EIGRP_KEYCHAIN"
+  eigrp_keychain_policy        = "EIGRP_KEYCHAIN"
   eigrp_interface_policy       = "EIGRP1"
   igmp_interface_policy        = "IIP"
   qos_class                    = "level2"
